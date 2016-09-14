@@ -73,6 +73,7 @@
 #include "MSSSIM.hpp"
 #include "VIFP.hpp"
 #include "PSNRHVS.hpp"
+#include "EWPSNR.hpp"
 
 enum Params {
 	PARAM_ORIGINAL = 1,	// Original video stream (YUV)
@@ -93,6 +94,7 @@ enum Metrics {
 	METRIC_VIFP,
 	METRIC_PSNRHVS,
 	METRIC_PSNRHVSM,
+    METRIC_EWPSNR,
 	METRIC_SIZE
 };
 
@@ -161,6 +163,10 @@ int main (int argc, const char *argv[])
 			sprintf(str, "%s_psnrhvsm.csv", argv[PARAM_RESULTS]);
 			result_file[METRIC_PSNRHVSM] = fopen(str, "w");
 		}
+		else if (strcmp(argv[i], "EWPSNR") == 0) {
+			sprintf(str, "%s_ewpsnr.csv", argv[PARAM_RESULTS]);
+			result_file[METRIC_EWPSNR] = fopen(str, "w");
+		}
 	}
 	delete[] str;
 
@@ -187,12 +193,20 @@ int main (int argc, const char *argv[])
 	MSSSIM *msssim = new MSSSIM(height, width);
 	VIFP *vifp     = new VIFP(height, width);
 	PSNRHVS *phvs  = new PSNRHVS(height, width);
+    EWPSNR *ewpsnr = new EWPSNR(height, width);
+
+    if (result_file[METRIC_EWPSNR] != NULL) {
+        ewpsnr->match_eye_track_data(argv[PARAM_ORIGINAL]);
+    }
+
 
 	cv::Mat original_frame(height,width,CV_32F), processed_frame(height,width,CV_32F);
 	float result[METRIC_SIZE] = {0};
 	float result_avg[METRIC_SIZE] = {0};
 
 	for (int frame=0; frame<nbframes; frame++) {
+        std::cout << frame << std::endl;
+
 		// Grab frame
 		if (!original->readOneFrame()) exit(EXIT_FAILURE);
 		original->getLuma(original_frame, CV_32F);
@@ -203,6 +217,12 @@ int main (int argc, const char *argv[])
 		if (result_file[METRIC_PSNR] != NULL) {
 			result[METRIC_PSNR] = psnr->compute(original_frame, processed_frame);
 		}
+
+        // Compute EWPSNR
+        if (result_file[METRIC_EWPSNR] != NULL) {
+            ewpsnr->set_frame_no(static_cast<unsigned int>(frame));
+            result[METRIC_EWPSNR] = ewpsnr->compute(original_frame, processed_frame);
+        }
 
 		// Compute SSIM and MS-SSIM
 		if (result_file[METRIC_SSIM] != NULL && result_file[METRIC_MSSSIM] == NULL) {
