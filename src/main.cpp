@@ -64,7 +64,6 @@
 **************************************************************************/
 
 #include <iostream>
-#include <stdio.h>
 #include <string.h>
 #include <opencv2/core/core.hpp>
 #include "VideoYUV.hpp"
@@ -74,6 +73,8 @@
 #include "VIFP.hpp"
 #include "PSNRHVS.hpp"
 #include "EWPSNR.hpp"
+
+#include <boost/algorithm/string.hpp>
 
 enum Params {
 	PARAM_ORIGINAL = 1,	// Original video stream (YUV)
@@ -135,36 +136,40 @@ int main (int argc, const char *argv[])
 	VideoYUV *original  = new VideoYUV(argv[PARAM_ORIGINAL], height, width, nbframes, chroma);
 	VideoYUV *processed = new VideoYUV(argv[PARAM_PROCESSED], height, width, nbframes, chroma);
 
+    std::string processed_path(argv[PARAM_PROCESSED]);
+    auto temp = boost::algorithm::find_last(processed_path, "/");
+    std::string processed_dir(processed_path.begin(), temp.end());
+
 	// Output files for results
 	FILE *result_file[METRIC_SIZE] = {NULL};
 	char *str = new char[256];
 	for (int i=7; i<argc; i++) {
 		if (strcmp(argv[i], "PSNR") == 0) {
-			sprintf(str, "%s_psnr.csv", argv[PARAM_RESULTS]);
+			sprintf(str, "%s%s_psnr.csv", processed_dir.c_str(), argv[PARAM_RESULTS]);
 			result_file[METRIC_PSNR] = fopen(str, "w");
 		}
 		else if (strcmp(argv[i], "SSIM") == 0) {
-			sprintf(str, "%s_ssim.csv", argv[PARAM_RESULTS]);
+			sprintf(str, "%s%s_ssim.csv", processed_dir.c_str(), argv[PARAM_RESULTS]);
 			result_file[METRIC_SSIM] = fopen(str, "w");
 		}
 		else if (strcmp(argv[i], "MSSSIM") == 0) {
-			sprintf(str, "%s_msssim.csv", argv[PARAM_RESULTS]);
+			sprintf(str, "%s%s_msssim.csv", processed_dir.c_str(), argv[PARAM_RESULTS]);
 			result_file[METRIC_MSSSIM] = fopen(str, "w");
 		}
 		else if (strcmp(argv[i], "VIFP") == 0) {
-			sprintf(str, "%s_vifp.csv", argv[PARAM_RESULTS]);
+			sprintf(str, "%s%s_vifp.csv", processed_dir.c_str(), argv[PARAM_RESULTS]);
 			result_file[METRIC_VIFP] = fopen(str, "w");
 		}
 		else if (strcmp(argv[i], "PSNRHVS") == 0) {
-			sprintf(str, "%s_psnrhvs.csv", argv[PARAM_RESULTS]);
+			sprintf(str, "%s%s_psnrhvs.csv", processed_dir.c_str(), argv[PARAM_RESULTS]);
 			result_file[METRIC_PSNRHVS] = fopen(str, "w");
 		}
 		else if (strcmp(argv[i], "PSNRHVSM") == 0) {
-			sprintf(str, "%s_psnrhvsm.csv", argv[PARAM_RESULTS]);
+			sprintf(str, "%s%s_psnrhvsm.csv", processed_dir.c_str(), argv[PARAM_RESULTS]);
 			result_file[METRIC_PSNRHVSM] = fopen(str, "w");
 		}
 		else if (strcmp(argv[i], "EWPSNR") == 0) {
-			sprintf(str, "%s_ewpsnr.csv", argv[PARAM_RESULTS]);
+			sprintf(str, "%s%s_ewpsnr.csv", processed_dir.c_str(), argv[PARAM_RESULTS]);
 			result_file[METRIC_EWPSNR] = fopen(str, "w");
 		}
 	}
@@ -205,7 +210,7 @@ int main (int argc, const char *argv[])
 	float result_avg[METRIC_SIZE] = {0};
 
 	for (int frame=0; frame<nbframes; frame++) {
-        std::cout << frame << std::endl;
+        std::cout << "Computing: No." << frame;
 
 		// Grab frame
 		if (!original->readOneFrame()) exit(EXIT_FAILURE);
@@ -253,12 +258,15 @@ int main (int argc, const char *argv[])
 		}
 
 		// Print quality index to file
+        std::cout << ". result: ";
 		for (int m=0; m<METRIC_SIZE; m++) {
 			if (result_file[m] != NULL) {
 				result_avg[m] += result[m];
 				fprintf(result_file[m], "%d,%.6f\n", frame, static_cast<double>(result[m]));
+                std::cout << result[m] << "  ";
 			}
 		}
+        std::cout << std::endl;
 	}
 
 	// Print average quality index to file
