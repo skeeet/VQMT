@@ -46,15 +46,36 @@
 
 class SSIM : protected Metric {
 public:
-	SSIM(int height, int width);
-	// Compute the SSIM index of the processed image
-	float compute(const cv::Mat& original, const cv::Mat& processed);
+    SSIM(int height, int width);
+
+    // Compute the SSIM index of the processed image
+    float compute(const cv::Mat &original, const cv::Mat &processed);
+
+    float compute(const cv::cuda::GpuMat &original, const cv::cuda::GpuMat &processed);
+
 protected:
-	// Compute the SSIM index and mean of the contrast comparison function
-	cv::Scalar computeSSIM(const cv::Mat& img1, const cv::Mat& img2);
+    // Compute the SSIM index and mean of the contrast comparison function
+    cv::Scalar computeSSIM(const cv::Mat &img1, const cv::Mat &img2);
+
+    cv::Scalar computeSSIM(const cv::cuda::GpuMat &img1, const cv::cuda::GpuMat &img2);
+
 private:
-	static const float C1;
-	static const float C2;
+    static const double C1;
+    static const double C2;
+
+
+    cv::cuda::GpuMat gI1_2, gI2_2, gI1_I2;
+    std::vector<cv::cuda::GpuMat> gvI1, gvI2;
+
+    cv::cuda::GpuMat gmu1, gmu2;
+    cv::cuda::GpuMat gmu1_2, gmu2_2, gmu1_mu2;
+
+    cv::cuda::GpuMat gsigma1_2, gsigma2_2, gsigma12;
+    cv::cuda::GpuMat gt3;
+
+    cv::cuda::GpuMat g_ssim_map;
+
+    cv::cuda::GpuMat gbuf;
 };
 
 #endif

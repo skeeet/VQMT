@@ -34,10 +34,16 @@
 #include "Metric.hpp"
 
 class PSNR : protected Metric {
+private:
+	cv::cuda::GpuMat gI1, gI2, gs, t1, t2;
+	cv::cuda::GpuMat buf;
+    cv::cuda::Stream stream;
 public:
 	PSNR(int height, int width);
+
 	// Compute the PSNR index of the processed image
-	float compute(const cv::Mat& original, const cv::Mat& processed);
+    float compute(const cv::Mat& original, const cv::Mat& processed);
+    float compute(const cv::cuda::GpuMat& original, const cv::cuda::GpuMat& processed);
 };
 
 #endif

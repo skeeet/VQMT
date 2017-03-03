@@ -24,14 +24,31 @@
 
 #include "PSNR.hpp"
 
-PSNR::PSNR(int h, int w) : Metric(h, w)
-{
+PSNR::PSNR(int h, int w) : Metric(h, w) {
 }
 
-float PSNR::compute(const cv::Mat& original, const cv::Mat& processed)
-{
-	cv::Mat tmp(height,width,CV_32F);
-	cv::subtract(original, processed, tmp);
-	cv::multiply(tmp, tmp, tmp);
-	return float(10*log10(255*255/cv::mean(tmp).val[0]));
+float PSNR::compute(const cv::Mat &original, const cv::Mat &processed) {
+    cv::Mat tmp(height, width, CV_32F);
+    cv::subtract(original, processed, tmp);
+    cv::multiply(tmp, tmp, tmp);
+
+    return float(10 * log10(255 * 255 / cv::mean(tmp).val[0]));
 }
+
+float PSNR::compute(const cv::cuda::GpuMat &original, const cv::cuda::GpuMat &processed) {
+
+    cv::cuda::absdiff(original.reshape(1), processed.reshape(1), gs, stream);
+    cv::cuda::multiply(gs, gs, gs, 1, -1, stream);
+    stream.waitForCompletion();
+
+    double sse = cv::cuda::sum(gs, buf)[0];
+
+
+    if (sse <= 1e-10) // for small values return zero
+        return 0;
+    else {
+        double mse = sse / double(original.channels() * original.rows * original.cols);
+        return float(10.0 * log10((255 * 255) / mse));
+    }
+}
+

@@ -28,12 +28,16 @@
 #include <cmath>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/cudaarithm.hpp>
+#include <opencv2/cudafilters.hpp>
 
 class Metric {
 public:
 	Metric(int height, int width);
 	virtual ~Metric();
 	virtual float compute(const cv::Mat& original, const cv::Mat& processed) = 0;
+	virtual float compute(const cv::cuda::GpuMat& original, const cv::cuda::GpuMat& processed) = 0;
+
 protected:
 	int height;
 	int width;
@@ -41,6 +45,7 @@ protected:
 	// Returns only those parts of the correlation that are computed without zero-padded edges
 	// (similarly to 'filter2' in Matlab with option 'valid')
 	void applyGaussianBlur(const cv::Mat& src, cv::Mat& dst, int ksize, double sigma);
+	void applyGaussianBlur(const cv::cuda::GpuMat& src, cv::cuda::GpuMat& dst, int ksize, double sigma);
 };
 
 #endif

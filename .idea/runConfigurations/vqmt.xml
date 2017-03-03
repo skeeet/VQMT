@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="vqmt" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PROGRAM_PARAMS="test_orig_small.yuv test_dist_1m_small.yuv 480 720 1000 1 test_gpu PSNR" WORKING_DIR="file://$PROJECT_DIR$/../../temp/vqbuild" PASS_PARENT_ENVS_2="true" PROJECT_NAME="vqmt" TARGET_NAME="vqmt" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="vqmt" RUN_TARGET_NAME="vqmt">
+    <envs />
+    <method />
+  </configuration>
+</component>

@@ -20,20 +20,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/${CMAKE_BUILD_TYPE})
 # defines for installation
 
 # installation prefix
-if(DEFINED PREFIX)
-	set(PREFIX ${PREFIX} CACHE PATH "install prefix")
-	set(CMAKE_INSTALL_PREFIX ${PREFIX})
-else()
-	set(PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "install prefix")
-endif()
+if (DEFINED PREFIX)
+    set(PREFIX ${PREFIX} CACHE PATH "install prefix")
+    set(CMAKE_INSTALL_PREFIX ${PREFIX})
+else ()
+    set(PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "install prefix")
+endif ()
 mark_as_advanced(CMAKE_INSTALL_PREFIX)
 
 # share directory
-if(DEFINED SHAREDIR)
-	set(SHAREDIR ${SHAREDIR} CACHE PATH "share directory")
-else()
-	set(SHAREDIR ${PREFIX}/share CACHE PATH "share directory")
-endif()
+if (DEFINED SHAREDIR)
+    set(SHAREDIR ${SHAREDIR} CACHE PATH "share directory")
+else ()
+    set(SHAREDIR ${PREFIX}/share CACHE PATH "share directory")
+endif ()
 
 # man path
 # TODO uncomment the following once a manpage has been written
@@ -44,11 +44,11 @@ endif()
 #endif()
 
 # documentation path
-if(DEFINED DOC_PATH)
+if (DEFINED DOC_PATH)
     set(VQMT_DOC_PATH ${DFC_DOC_PATH} CACHE PATH "doc directory")
-else()
+else ()
     set(VQMT_DOC_PATH ${SHAREDIR}/doc/${PACKAGE} CACHE PATH "doc directory")
-endif()
+endif ()
 
 # set compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -62,24 +62,24 @@ check_cxx_compiler_flag(-Wstrict-null-sentinel HAS_STRICT_NULL_SENTINEL)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wformat=2 -Winit-self -Wmissing-include-dirs -Wswitch-default -Wfloat-equal -Wundef -Wshadow -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wsign-conversion  -Wmissing-declarations -Wredundant-decls -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual -pipe")
 
-if(HAS_DOUBLE_PROMOTION)
+if (HAS_DOUBLE_PROMOTION)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wdouble-promotion")
-endif()
-if(HAS_SUGGEST_ATTRIBUTE_CONST)
+endif ()
+if (HAS_SUGGEST_ATTRIBUTE_CONST)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-attribute=const")
-endif()
-if(HAS_SUGGEST_ATTRIBUTE_NORETURN)
+endif ()
+if (HAS_SUGGEST_ATTRIBUTE_NORETURN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-attribute=noreturn")
-endif()
-if(HAS_USELESS_CAST)
+endif ()
+if (HAS_USELESS_CAST)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuseless-cast")
-endif()
-if(HAS_LOGICAL_OP)
+endif ()
+if (HAS_LOGICAL_OP)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op")
-endif()
-if(HAS_STRICT_NULL_SENTINEL)
+endif ()
+if (HAS_STRICT_NULL_SENTINEL)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wstrict-null-sentinel")
-endif()
+endif ()
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -flto -DNDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g3 -ggdb3 -Wpadded -Wpacked")
@@ -87,44 +87,46 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g3 -ggdb3 -Wpadded -Wpacked")
 find_package(OpenCV REQUIRED)
 set(EXECUTABLE_NAME ${CMAKE_PROJECT_NAME})
 set(SRCS
-    ${SOURCE_DIR}/main.cpp
-    ${SOURCE_DIR}/Metric.cpp
-    ${SOURCE_DIR}/MSSSIM.cpp
-    ${SOURCE_DIR}/PSNR.cpp
-    ${SOURCE_DIR}/PSNRHVS.cpp
-    ${SOURCE_DIR}/SSIM.cpp
-    ${SOURCE_DIR}/VideoYUV.cpp
-    ${SOURCE_DIR}/VIFP.cpp
-    ${SOURCE_DIR}/EWPSNR.cpp
-)
+        ${SOURCE_DIR}/main.cpp
+        ${SOURCE_DIR}/Metric.cpp
+        ${SOURCE_DIR}/VideoYUV.cpp
+#        ${SOURCE_DIR}/MSSSIM.cpp
+        ${SOURCE_DIR}/PSNR.cpp
+#        ${SOURCE_DIR}/PSNRHVS.cpp
+        ${SOURCE_DIR}/SSIM.cpp
+#        ${SOURCE_DIR}/VIFP.cpp
+#        ${SOURCE_DIR}/EWPSNR.cpp
+#        ${SOURCE_DIR}/PSNR_GPU.cpp
+#        ${SOURCE_DIR}/SSIM_GPU.cpp
+        )
 add_executable(
-    ${EXECUTABLE_NAME}
-    ${SRCS}
+        ${EXECUTABLE_NAME}
+        ${SRCS}
 )
 target_link_libraries(${CMAKE_PROJECT_NAME} ${OpenCV_LIBS})
 
 set(VQMT_DOC_FILES
-	AUTHORS.md
-    CHANGELOG.md
-	LICENSE
-	README.md
-    readme.txt
-)
+        AUTHORS.md
+        CHANGELOG.md
+        LICENSE
+        README.md
+        readme.txt
+        )
 
 # rule to generate a source tarball
 set(CPACK_SOURCE_GENERATOR "TGZ")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${VERSION}")
 set(CPACK_SOURCE_IGNORE_FILES
-	"~$"
-    ".directory"
-	".swp$"
-	"^${PROJECT_SOURCE_DIR}/.git/"
-	"^${PROJECT_SOURCE_DIR}/build/"
-	"${PROJECT_SOURCE_DIR}/.gitignore$"
-	"${CPACK_SOURCE_IGNORE_FILES}")
+        "~$"
+        ".directory"
+        ".swp$"
+        "^${PROJECT_SOURCE_DIR}/.git/"
+        "^${PROJECT_SOURCE_DIR}/build/"
+        "${PROJECT_SOURCE_DIR}/.gitignore$"
+        "${CPACK_SOURCE_IGNORE_FILES}")
 include(CPack)
 add_custom_target(dist
-	COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+        COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 
 # installation
 install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION bin)
@@ -134,11 +136,11 @@ install(FILES ${VQMT_DOC_FILES} DESTINATION ${VQMT_DOC_PATH})
 
 # uninstall target
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY)
 
 add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P
-	${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+        COMMAND ${CMAKE_COMMAND} -P
+        ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
